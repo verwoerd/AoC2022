@@ -1,5 +1,6 @@
 rootProject.name = "AoC2022"
 include(
   "shared",
-  "day01"
+  "day01",
+  "day02"
        )
