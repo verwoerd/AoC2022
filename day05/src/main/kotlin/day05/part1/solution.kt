@@ -21,8 +21,7 @@ fun BufferedReader.calculateTopCrates(
   repeat(stacks) {
     floor[it+1]= mutableListOf()
   }
-  val lines = this.lineSequence().groupBy { it.contains("[") }
-  lines[true]!!.forEach { line ->
+  lineSequence().takeWhile { it.contains("[") }.forEach { line ->
     repeat(stacks) {
       if (line.length > 4 * it + 1 && line[4 * it + 1] != ' ') {
         floor[it + 1]!!.add(line[4 * it + 1])
@@ -30,7 +29,7 @@ fun BufferedReader.calculateTopCrates(
     }
   }
   floor.forEach { (_, it) -> it.reverse() }
-  lines[false]!!.drop(2)
+  lineSequence().drop(2)
     .map { current ->
       REGEX.matchEntire(current)!!.groupValues.drop(1).map { it.toInt() }
     }.forEach { (num, from, to) -> craneAlgorithm(floor, num, from, to) }
