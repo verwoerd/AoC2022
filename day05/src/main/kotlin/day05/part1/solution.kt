@@ -17,29 +17,20 @@ fun BufferedReader.calculateTopCrates(
   stacks: Int,
   craneAlgorithm: (MutableMap<Int, MutableList<Char>>, num: Int, from: Int, to: Int) -> Unit
 ): String {
-  var line = this.readLine()!!
-  val floor = mutableMapOf(
-    1 to mutableListOf<Char>(),
-    2 to mutableListOf(),
-    3 to mutableListOf(),
-    4 to mutableListOf(),
-    5 to mutableListOf(),
-    6 to mutableListOf(),
-    7 to mutableListOf(),
-    8 to mutableListOf(),
-    9 to mutableListOf()
-  )
-  while (line.contains("[")) {
+  val floor = mutableMapOf<Int, MutableList<Char>>()
+  repeat(stacks) {
+    floor[it+1]= mutableListOf()
+  }
+  val lines = this.lineSequence().groupBy { it.contains("[") }
+  lines[true]!!.forEach { line ->
     repeat(stacks) {
       if (line.length > 4 * it + 1 && line[4 * it + 1] != ' ') {
         floor[it + 1]!!.add(line[4 * it + 1])
       }
     }
-    line = this.readLine()!!
   }
-  this.readLine() // skip empty line
   floor.forEach { (_, it) -> it.reverse() }
-  lineSequence()
+  lines[false]!!.drop(2)
     .map { current ->
       REGEX.matchEntire(current)!!.groupValues.drop(1).map { it.toInt() }
     }.forEach { (num, from, to) -> craneAlgorithm(floor, num, from, to) }
