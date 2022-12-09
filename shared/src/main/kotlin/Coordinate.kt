@@ -18,6 +18,17 @@ data class Coordinate(val x: Int, val y: Int) : Comparable<Coordinate> {
   operator fun div(other: Coordinate): Coordinate = Coordinate(x / other.x, y / other.y)
   infix fun plusY(i: Number): Coordinate = plus(Coordinate(0, i.toInt()))
   infix fun plusX(i: Number): Coordinate = plus(Coordinate(i.toInt(), 0))
+
+  fun normalize(): Coordinate =
+    Coordinate(when(x){
+      in -1..1 -> x
+      in 1 .. Int.MAX_VALUE -> 1
+      else -> -1
+    }, when(y){
+      in -1..1 -> y
+      in 1 .. Int.MAX_VALUE -> 1
+      else -> -1
+    })
 }
 
 
