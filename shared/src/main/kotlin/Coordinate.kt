@@ -51,10 +51,19 @@ fun <V> Map<Coordinate, V>.xRange() = keys.minByOrNull { it.x }!!.x to keys.maxB
 fun <V> Map<Coordinate, V>.printMap(seperater: String = "", transform: (V?) -> CharSequence) {
   val (xStart, xEnd) = xRange()
   val (yStart, yEnd) = yRange()
-  println((yStart..yEnd).joinToString("\n") {y ->
-    (xStart..xEnd).joinToString("") {x-> "${transform(get(Coordinate(x,y)))}" }
+  println((yStart..yEnd).joinToString("\n") { y ->
+    (xStart..xEnd).joinToString("") { x -> "${transform(get(Coordinate(x, y)))}" }
   })
 }
+
+fun <V> Map<Coordinate, V>.printReversedMap(transform: (V?) -> CharSequence) {
+  val (xStart, xEnd) = xRange()
+  val (yStart, yEnd) = yRange()
+  println((yEnd downTo yStart).joinToString("\n") { y ->
+    (xStart..xEnd).joinToString("") { x -> "${transform(get(Coordinate(x, y)))}" }
+  })
+}
+
 
 fun adjacentCoordinates(origin: Coordinate) = sequenceOf(
   Coordinate(origin.x + 1, origin.y),
