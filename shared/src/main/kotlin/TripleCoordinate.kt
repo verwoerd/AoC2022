@@ -12,6 +12,7 @@ import kotlin.math.abs
  */
 data class TripleCoordinate(val x: Long, val y: Long, val z: Long) {
   constructor(xVal: Int, yVal: Int, zVal: Int) : this(xVal.toLong(), yVal.toLong(), zVal.toLong())
+
   operator fun minus(other: TripleCoordinate) = TripleCoordinate(x - other.x, y - other.y, z - other.z)
   operator fun plus(other: TripleCoordinate) = TripleCoordinate(x + other.x, y + other.y, z + other.z)
   operator fun plus(i: Number) = plus(TripleCoordinate(i.toLong(), i.toLong(), i.toLong()))
@@ -28,3 +29,41 @@ fun manhattanDistance(a: TripleCoordinate, b: TripleCoordinate = tripleOrigin) =
 
 val tripleOrigin = TripleCoordinate(0, 0, 0)
 
+fun adjacentTripleCoordinates(origin: TripleCoordinate) = sequenceOf(
+  TripleCoordinate(origin.x + 1, origin.y, origin.z),
+  TripleCoordinate(origin.x - 1, origin.y, origin.z),
+  TripleCoordinate(origin.x, origin.y + 1, origin.z),
+  TripleCoordinate(origin.x, origin.y - 1, origin.z),
+  TripleCoordinate(origin.x, origin.y, origin.z - 1),
+  TripleCoordinate(origin.x, origin.y, origin.z + 1)
+)
+
+
+fun adjacentCircularTripleCoordinates(origin: TripleCoordinate) = sequenceOf(
+  TripleCoordinate(origin.x, origin.y, origin.z - 1),
+  TripleCoordinate(origin.x + 1, origin.y, origin.z - 1),
+  TripleCoordinate(origin.x + 1, origin.y + 1, origin.z - 1),
+  TripleCoordinate(origin.x + 1, origin.y - 1, origin.z - 1),
+  TripleCoordinate(origin.x - 1, origin.y, origin.z - 1),
+  TripleCoordinate(origin.x - 1, origin.y - 1, origin.z - 1),
+  TripleCoordinate(origin.x - 1, origin.y + 1, origin.z - 1),
+  TripleCoordinate(origin.x, origin.y + 1, origin.z - 1),
+  TripleCoordinate(origin.x, origin.y - 1, origin.z - 1),
+  TripleCoordinate(origin.x + 1, origin.y, origin.z),
+  TripleCoordinate(origin.x + 1, origin.y + 1, origin.z),
+  TripleCoordinate(origin.x + 1, origin.y - 1, origin.z),
+  TripleCoordinate(origin.x - 1, origin.y, origin.z),
+  TripleCoordinate(origin.x - 1, origin.y - 1, origin.z),
+  TripleCoordinate(origin.x - 1, origin.y + 1, origin.z),
+  TripleCoordinate(origin.x, origin.y + 1, origin.z),
+  TripleCoordinate(origin.x, origin.y - 1, origin.z),
+  TripleCoordinate(origin.x, origin.y, origin.z + 1),
+  TripleCoordinate(origin.x + 1, origin.y, origin.z + 1),
+  TripleCoordinate(origin.x + 1, origin.y + 1, origin.z + 1),
+  TripleCoordinate(origin.x + 1, origin.y - 1, origin.z + 1),
+  TripleCoordinate(origin.x - 1, origin.y, origin.z + 1),
+  TripleCoordinate(origin.x - 1, origin.y - 1, origin.z + 1),
+  TripleCoordinate(origin.x - 1, origin.y + 1, origin.z + 1),
+  TripleCoordinate(origin.x, origin.y + 1, origin.z + 1),
+  TripleCoordinate(origin.x, origin.y - 1, origin.z + 1),
+)
