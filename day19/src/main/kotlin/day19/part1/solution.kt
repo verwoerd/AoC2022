@@ -17,12 +17,9 @@ fun day19Part1(input: BufferedReader): Any {
     while (queue.isNotEmpty()) {
       val current = queue.remove()
       if (max.getValue(current.time) > current.geode) continue
-      if (current.time >= 24) {
-        max[current.time] = max.getValue(current.time).coerceAtLeast(current.geode)
-        continue
-      }
       max[current.time] = max.getValue(current.time).coerceAtLeast(current.geode)
-      current.getNextStates().filter { it.time < 25 }.filter { seen.add(it) }.toCollection(queue)
+      if (current.time >= 24) continue
+      current.getNextStates().filter { seen.add(it) }.toCollection(queue)
     }
     blueprint.id * max[24]!!
   }
@@ -148,13 +145,13 @@ data class Blueprint(
   val maxObsidian by lazy { geodeObsidianCost }
 
   companion object {
-    val regex =
+    private val regex =
       Regex("Blueprint (\\d+): Each ore robot costs (\\d+) ore. Each clay robot costs (\\d+) ore. Each obsidian robot costs (\\d+) ore and (\\d+) clay. Each geode robot costs (\\d+) ore and (\\d+) obsidian.")
 
     fun fromInput(input: BufferedReader) =
       input.lineSequence().map { fromLine(it) }.toList()
 
-    fun fromLine(line: String) =
+    private fun fromLine(line: String) =
       regex.matchEntire(line)!!.destructured.let { (id, ore, clay, oo, oc, go, cg) ->
         Blueprint(
           id = id.toInt(),
@@ -167,5 +164,4 @@ data class Blueprint(
         )
       }
   }
-
 }

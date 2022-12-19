@@ -19,12 +19,9 @@ fun day19Part2(input: BufferedReader): Any {
     while (queue.isNotEmpty()) {
       val current = queue.remove()
       if (max.getValue(current.time) > current.geode) continue
-      if (current.time >= 32) {
-        max[current.time] = max.getValue(current.time).coerceAtLeast(current.geode)
-        continue
-      }
       max[current.time] = max.getValue(current.time).coerceAtLeast(current.geode)
-      current.getNextStates().filter { it.time < 33 }.filter { seen.add(it) }.toCollection(queue)
+      if (current.time >= 32) continue
+      current.getNextStates().filter { seen.add(it) }.toCollection(queue)
     }
     max[32]!!
   }.fold(1L) { acc, i -> acc * i }
