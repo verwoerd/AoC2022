@@ -46,15 +46,19 @@ data class State(
     val newClay = clayBot
     val newObsidian = obsidianBot
     val newGeode = geodeBot
+    if (ore >= blueprint.geodeOreCost && obsidian >= blueprint.geodeObsidianCost) {
+      return listOf(
+        copy(
+          time = time + 1,
+          ore = ore + newOre - blueprint.geodeOreCost,
+          clay = clay + newClay,
+          obsidian = obsidian + newObsidian - blueprint.geodeObsidianCost,
+          geode = geode + newGeode,
+          geodeBot = geodeBot + 1
+        )
+      )
+    }
     return listOfNotNull(
-      copy(
-        time = time + 1,
-        ore = ore + newOre - blueprint.geodeOreCost,
-        clay = clay + newClay,
-        obsidian = obsidian + newObsidian - blueprint.geodeObsidianCost,
-        geode = geode + newGeode,
-        geodeBot = geodeBot + 1
-      ).takeIf { ore >= blueprint.geodeOreCost && obsidian >= blueprint.geodeObsidianCost },
       copy(
         time = time + 1,
         ore = ore + newOre - blueprint.obsidianOreCost,
@@ -62,7 +66,7 @@ data class State(
         obsidian = obsidian + newObsidian,
         geode = geode + newGeode,
         obsidianBot = obsidianBot + 1
-      ).takeIf { ore >= blueprint.obsidianOreCost && clay >= blueprint.obsidianClayCost },
+      ).takeIf { ore >= blueprint.obsidianOreCost && clay >= blueprint.obsidianClayCost && obsidianBot < blueprint.maxObsidian },
       copy(
         time = time + 1,
         ore = ore + newOre - blueprint.clayCost,
@@ -70,7 +74,7 @@ data class State(
         obsidian = obsidian + newObsidian,
         geode = geode + newGeode,
         clayBot = clayBot + 1
-      ).takeIf { ore >= blueprint.clayCost },
+      ).takeIf { ore >= blueprint.clayCost && clayBot < blueprint.maxClay },
       copy(
         time = time + 1,
         ore = ore + newOre - blueprint.oreCost,
@@ -78,31 +82,56 @@ data class State(
         obsidian = obsidian + newObsidian,
         geode = geode + newGeode,
         miningBot = miningBot + 1
-      ).takeIf { ore >= blueprint.oreCost },
+      ).takeIf { ore >= blueprint.oreCost && miningBot < blueprint.maxOre },
       copy(
         time = time + 1,
         ore = ore + newOre,
         clay = clay + newClay,
         obsidian = obsidian + newObsidian,
         geode = geode + newGeode,
-      )
+      ).takeIf {
+        ore < blueprint.oreCost
+            || (clay < blueprint.obsidianClayCost && ore < blueprint.obsidianOreCost)
+            || (obsidian < blueprint.geodeObsidianCost && ore < blueprint.geodeOreCost)
+      }
     )
   }
 
   override fun compareTo(other: State): Int {
     return -1 * when (val g = this.geodeBot.compareTo(other.geodeBot)) {
-      0 -> when (val o = this.obsidianBot.compareTo(other.obsidianBot)) {
-        0 -> when (val c = this.clayBot.compareTo(other.clayBot)) {
-          0 -> this.miningBot.compareTo(other.miningBot)
-          else -> c
+      0 -> when (val gc = this.geode.compareTo(other.geode)) {
+        0 -> when (val o = this.obsidianBot.compareTo(other.obsidianBot)) {
+          0 -> when (val oc = this.obsidian.compareTo(other.obsidian)) {
+            0 -> when (val c = this.clayBot.compareTo(other.clayBot)) {
+              0 -> when (val cc = this.clay.compareTo(other.clay)) {
+                0 -> when (val m = this.miningBot.compareTo(other.miningBot)) {
+                  0 -> this.ore.compareTo(other.ore)
+                  else -> m
+                }
+
+                else -> cc
+              }
+
+              else -> c
+            }
+
+            else -> oc
+          }
+
+          else -> o
         }
 
-        else -> o
+        else -> gc
       }
 
       else -> g
     }
   }
+
+  override fun toString(): String {
+    return "State(time=$time, ore=$ore, clay=$clay, obsidian=$obsidian, geode=$geode, miningBot=$miningBot, clayBot=$clayBot, obsidianBot=$obsidianBot, geodeBot=$geodeBot)"
+  }
+
 }
 
 data class Blueprint(
@@ -114,6 +143,10 @@ data class Blueprint(
   val geodeOreCost: Int,
   val geodeObsidianCost: Int
 ) {
+  val maxOre by lazy { oreCost.coerceAtLeast(clayCost).coerceAtLeast(obsidianOreCost).coerceAtLeast(geodeOreCost) }
+  val maxClay by lazy { obsidianClayCost }
+  val maxObsidian by lazy { geodeObsidianCost }
+
   companion object {
     val regex =
       Regex("Blueprint (\\d+): Each ore robot costs (\\d+) ore. Each clay robot costs (\\d+) ore. Each obsidian robot costs (\\d+) ore and (\\d+) clay. Each geode robot costs (\\d+) ore and (\\d+) obsidian.")

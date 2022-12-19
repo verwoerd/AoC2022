@@ -26,7 +26,6 @@ fun day19Part2(input: BufferedReader): Any {
       max[current.time] = max.getValue(current.time).coerceAtLeast(current.geode)
       current.getNextStates().filter { it.time < 33 }.filter { seen.add(it) }.toCollection(queue)
     }
-
     max[32]!!
   }.fold(1L) { acc, i -> acc * i }
 }
