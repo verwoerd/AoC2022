@@ -12,16 +12,23 @@ import java.io.BufferedReader
  * @since 24/12/2022
  */
 fun day24Part1(input: BufferedReader): Any {
-  val coordinates = input.lineSequence()
+  val (start, end) = input.readInput()
+  return dfs(start, end + FourDirections.DOWN.direction)
+}
+
+lateinit var blizzardMap: MutableMap<Int, Set<Pair<Coordinate, FourDirections>>>
+lateinit var xRange: IntRange
+lateinit var yRange: IntRange
+
+fun BufferedReader.readInput(): Pair<Coordinate, Coordinate> {
+  val coordinates = lineSequence()
     .flatMapIndexed { y, line ->
       line.mapIndexed { x, c -> Coordinate(x, y) to c }
     }.toList()
-  val yRange = 1 until coordinates.maxOf { it.first.y }
-  val xRange = 1 until coordinates.maxOf { it.first.x }
+  yRange = 1 until coordinates.maxOf { it.first.y }
+  xRange = 1 until coordinates.maxOf { it.first.x }
   val start = coordinates.filter { it.first.y == 0 }.first { it.second == '.' }.first
-  val end =
-    coordinates.filter { it.first.y == yRange.last + 1 }
-      .first { it.second == '.' }.first + FourDirections.DOWN.direction
+  val end = coordinates.filter { it.first.y == yRange.last + 1 }.first { it.second == '.' }.first
   val blizzardLocations = coordinates.filter { it.second != '.' }.filter { it.second != '#' }
     .map {
       it.first to when (it.second) {
@@ -32,9 +39,12 @@ fun day24Part1(input: BufferedReader): Any {
         else -> error("Unknown direction $it")
       }
     }.toSet()
-  val blizzardMap = mutableMapOf(0 to blizzardLocations)
+  blizzardMap = mutableMapOf(0 to blizzardLocations)
+  return start to end
+}
 
-  val seen = mutableSetOf(State(0, start))
+fun dfs(start: Coordinate, end: Coordinate, startTime: Int = 0): Int {
+  val seen = mutableSetOf(State(startTime, start))
   val queue = priorityQueueOf<State>(
     { a, b ->
       when (val c = a.minutes.compareTo(b.minutes)) {
@@ -42,14 +52,10 @@ fun day24Part1(input: BufferedReader): Any {
         else -> c
       }
     },
-    State(0, start)
+    State(startTime, start)
   )
   while (queue.isNotEmpty()) {
     val (minutes, location) = queue.remove()
-    println("[$minutes] $location")
-    if (location == end) {
-      return minutes + 1
-    }
     val nextBlizzard = blizzardMap.computeIfAbsent(minutes + 1) {
       blizzardMap[minutes]!!.map { (current, direction) ->
         val next = current + direction.direction
@@ -64,6 +70,9 @@ fun day24Part1(input: BufferedReader): Any {
           }
         } to direction
       }.toSet()
+    }
+    if (location == end) {
+      return minutes + 1
     }
     val nextBl = nextBlizzard.map { it.first }
     adjacentCoordinates(location).filter { it !in nextBl }
