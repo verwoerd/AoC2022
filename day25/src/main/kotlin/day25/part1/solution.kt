@@ -26,13 +26,14 @@ fun day25Part1(input: BufferedReader): Any {
 
 }
 
-
-fun rewrite(num: Long): String = when {
-  num == 0L -> ""
-  num % 5 == 0L -> rewrite(num / 5) + "0"
-  num % 5 == 1L -> rewrite(num / 5) + "1"
-  num % 5 == 2L -> rewrite(num / 5) + "2"
-  num % 5 == 3L -> rewrite((num + 2) / 5) + "="
-  num % 5 == 4L -> rewrite((num + 1) / 5) + "-"
-  else -> error("no valid representation")
+fun rewrite(num: Long): String = when (num) {
+  0L -> ""
+  else -> when (num%5L) {
+    0L -> rewrite(num / 5) + "0"
+    1L -> rewrite(num / 5) + "1"
+    2L -> rewrite(num / 5) + "2"
+    3L -> rewrite((num + 2) / 5) + "="
+    4L -> rewrite((num + 1) / 5) + "-"
+    else -> error("no valid representation")
+  }
 }
